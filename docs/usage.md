@@ -16,6 +16,30 @@ make install
 source .venv/bin/activate
 ```
 
+## Installation
+
+Clone the repository and install the CLI in an isolated environment:
+
+```bash
+git clone https://github.com/woodwosj/OdooTestLauncher.git
+cd OdooTestLauncher
+make install
+source .venv/bin/activate
+```
+
+After activation `odoo-launch` is available from the virtualenv. Repeat `make install` when dependencies change.
+
+### Installing via pip
+
+If you prefer to manage dependencies manually:
+
+```bash
+python3 -m venv .venv
+source .venv/bin/activate
+pip install -r requirements.txt
+pip install -r requirements-dev.txt  # optional tooling/test extras
+```
+
 ## Configuration
 
 Use `odoo-launch init` to copy the default manifest to `~/.odoo-launch/config.yml`:
@@ -45,6 +69,14 @@ Each successful run writes metadata both to a JSON file under the run directory 
 - Seed SQL lives under `seeds/<scenario>/`. The default `basic` seed creates a demo company and an admin contact.
 - Python seed scripts can be registered in the manifest; they run through `odoo shell` inside the container.
 - Enterprise licence injection happens immediately after seeding when a code is provided (via `--enterprise-code` or the `ODOO_ENTERPRISE_CODE` environment variable). The helper script updates `ir_config_parameter` for the active database.
+
+### Enterprise Licence Stamping
+
+During startup the launcher calls `scripts/inject_enterprise_code.py`, which records the supplied licence key in `ir_config_parameter` (`database.enterprise_code` and `database.enterprise_privilege`). Odoo also stamps the database with licence metadata the first time the web client is accessed. That stamp starts the evaluation window:
+
+- To continue using an enterprise run beyond the trial, complete the official registration flow inside Odoo with the customer’s active subscription.
+- If you only need a short-lived test window, allow the stack to shut down (or run `odoo-launch stop <run-id>`) before the evaluation expires.
+- After the evaluation period passes without registration, spin up a fresh environment (`odoo-launch up ...`) so a new database is created; reusing the expired database requires entering a valid licence.
 
 ## Testing and Tooling
 
