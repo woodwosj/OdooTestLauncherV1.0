@@ -1,0 +1,52 @@
+# Global defaults applied to every run
+defaults:
+  temp_run_root: "~/.odoo-launch/runs"
+  history_log: "~/.odoo-launch/history.log"
+  docker_bin: "docker"
+  compose_bin: "docker compose"
+  postgres_image: "postgres:16"
+  timezone: "UTC"
+  readiness:
+    http_timeout: 600
+    http_interval: 5
+    pg_timeout: 120
+    pg_interval: 3
+
+# Version metadata keyed by edition and semantic version
+editions:
+  community:
+    "18.0":
+      repo_path: "~/odoo-sandboxes/community/18.0"
+      compose_template: "../docker/compose.community.yml.j2"
+      image: "odoo:18.0"
+      addons:
+        - "{{ repo_path }}/addons"
+      extra_addons: []
+      http_port: 8069
+      longpoll_port: 8072
+      pg_port: 15432
+      default_seed: "basic"
+      seeds:
+        basic:
+          sql:
+            - "seeds/basic/base.sql"
+          scripts: []
+  enterprise:
+    "18.0":
+      repo_path: "~/odoo-sandboxes/enterprise/18.0"
+      compose_template: "../docker/compose.enterprise.yml.j2"
+      image: "odoo:18.0"
+      addons:
+        - "~/odoo-sandboxes/community/18.0/addons"
+        - "{{ repo_path }}/odoo/addons"
+      extra_addons: []
+      http_port: 9079
+      longpoll_port: 9082
+      pg_port: 19082
+      default_seed: "basic"
+      requires_enterprise_code: true
+      seeds:
+        basic:
+          sql:
+            - "seeds/basic/base.sql"
+          scripts: []

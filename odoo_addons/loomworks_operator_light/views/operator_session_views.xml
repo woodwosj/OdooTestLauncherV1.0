@@ -1,0 +1,74 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <record id="view_loomworks_operator_session_list" model="ir.ui.view">
+        <field name="name">loomworks.operator.session.list</field>
+        <field name="model">loomworks.operator.session</field>
+        <field name="arch" type="xml">
+            <list string="Operator Sessions" default_order="create_date desc">
+                <field name="name"/>
+                <field name="state"/>
+                <field name="last_run_at"/>
+                <field name="create_date"/>
+                <field name="write_date"/>
+            </list>
+        </field>
+    </record>
+
+    <record id="view_loomworks_operator_session_form" model="ir.ui.view">
+        <field name="name">loomworks.operator.session.form</field>
+        <field name="model">loomworks.operator.session</field>
+        <field name="arch" type="xml">
+            <form string="Operator Session">
+                <sheet>
+                    <header>
+                        <button name="action_generate_layout" type="object" string="Generate Layout"
+                                class="btn-primary" invisible="state == 'archived'"/>
+                        <button name="action_set_draft" type="object" string="Reset to Draft"
+                                class="btn-secondary" invisible="state == 'draft'"/>
+                        <button name="action_archive" type="object" string="Archive"
+                                invisible="state == 'archived'"/>
+                        <field name="state" widget="statusbar" statusbar_visible="draft,generated,archived"/>
+                    </header>
+                    <div class="oe_button_box" name="button_box">
+                        <button type="object" name="action_generate_layout" class="oe_stat_button" icon="fa-magic"
+                                invisible="state == 'archived'">
+                            <span class="o_stat_text">Generate</span>
+                        </button>
+                    </div>
+                    <group>
+                        <group>
+                            <field name="name"/>
+                            <field name="last_run_at" readonly="1"/>
+                        </group>
+                        <group>
+                            <field name="prompt" placeholder="e.g. Summarize open sales orders by region"/>
+                        </group>
+                    </group>
+                    <notebook>
+                        <page string="Response">
+                            <field name="response" nolabel="1"/>
+                        </page>
+                        <page string="Layout JSON">
+                            <field name="layout_json" widget="text" nolabel="1"/>
+                        </page>
+                    </notebook>
+                </sheet>
+            </form>
+        </field>
+    </record>
+
+    <record id="action_loomworks_operator_session" model="ir.actions.act_window">
+        <field name="name">Operator Sessions</field>
+        <field name="res_model">loomworks.operator.session</field>
+        <field name="view_mode">list,form</field>
+        <field name="help" type="html">
+            <p class="o_view_nocontent_smiling_face">
+                Create the first session to begin rehearsing Loomworks operator flows inside Odoo.
+            </p>
+        </field>
+    </record>
+
+    <menuitem id="menu_loomworks_operator_root" name="Loomworks Operator" sequence="30"/>
+    <menuitem id="menu_loomworks_operator_sessions" name="Sessions"
+              parent="menu_loomworks_operator_root" action="action_loomworks_operator_session" sequence="10"/>
+</odoo>

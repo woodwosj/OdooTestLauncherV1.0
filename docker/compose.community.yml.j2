@@ -1,0 +1,55 @@
+services:
+  db:
+    image: {{ postgres_image }}
+    container_name: {{ run_id }}-db
+    environment:
+      POSTGRES_DB: postgres
+      POSTGRES_USER: {{ db_user }}
+      POSTGRES_PASSWORD: {{ db_password }}
+    ports:
+      - "{{ pg_port }}:5432"
+    volumes:
+      - {{ run_id }}-pgdata:/var/lib/postgresql/data
+
+  odoo:
+    image: {{ odoo_image }}
+    container_name: {{ run_id }}-odoo
+    depends_on:
+      - db
+    environment:
+      HOST: db
+      USER: {{ db_user }}
+      PASSWORD: {{ db_password }}
+      PGHOST: db
+      PGUSER: {{ db_user }}
+      PGPASSWORD: {{ db_password }}
+      RUN_ID: {{ run_id }}
+    command:
+      - bash
+      - -c
+      - |
+          set -euo pipefail
+          chmod -R 777 /var/lib/odoo || true
+          chmod -R 777 /var/log/odoo || true
+          export PGHOST=db PGPORT=5432 PGUSER={{ db_user }} PGPASSWORD={{ db_password }} PGDATABASE=postgres
+          until psql -Atqc "SELECT 1" >/dev/null 2>&1; do
+            sleep 1
+          done
+          if ! psql -Atqc "SELECT 1 FROM pg_database WHERE datname='{{ db_name }}'"; then
+            odoo -d {{ db_name }} --db_host=db --db_port=5432 --db_user={{ db_user }} --db_password={{ db_password }} --addons-path={{ addons_path }} --without-demo=all --init=base --stop-after-init
+          fi
+          exec odoo -d {{ db_name }} --db_host=db --db_port=5432 --db_user={{ db_user }} --db_password={{ db_password }} --addons-path={{ addons_path }} --without-demo=all --limit-time-real-cron=0 --limit-time-real=0
+    ports:
+      - "{{ http_port }}:8069"
+      - "{{ longpoll_port }}:8072"
+    volumes:
+      - {{ run_id }}-odoo-data:/var/lib/odoo
+      - {{ run_id }}-odoo-log:/var/log/odoo
+{% for mount in source_mounts %}
+      - {{ mount.host }}:{{ mount.target }}{% if mount.read_only %}:ro{% endif %}
+{% endfor %}
+
+volumes:
+  {{ run_id }}-pgdata: {}
+  {{ run_id }}-odoo-data: {}
+  {{ run_id }}-odoo-log: {}

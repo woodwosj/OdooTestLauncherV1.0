@@ -1,0 +1,34 @@
+# Virtual environments
+.venv/
+
+# Python cache
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+
+# Distribution / build
+dist/
+build/
+*.egg-info/
+*.deb
+*.rpm
+*.tar.gz
+*.exe
+
+# Logs and temp
+.pytest_cache/
+.mypy_cache/
+.ruff_cache/
+*.log
+
+# Editor settings
+.idea/
+.vscode/
+*.swp
+
+# Docker artifacts
+*.env
+
+# History / runtime artifacts
+.odoo-launch/

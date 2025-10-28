@@ -1,0 +1,10 @@
+include AGENTS.md
+include README.md
+include pyproject.toml
+include Makefile
+recursive-include config *.yml
+recursive-include docker *.j2
+recursive-include templates *.j2
+recursive-include scripts *.py
+recursive-include seeds *.sql
+recursive-include docs *.md
