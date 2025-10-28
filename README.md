@@ -25,3 +25,37 @@ odoo-launch stop <run-id>
 ```
 
 See `docs/usage.md` for full documentation, including configuration, command reference, and recorded assumptions.
+
+## Source Layout Requirements
+
+The launcher reads Odoo sources directly from the filesystem; ensure your checkout matches the manifest defaults or update the manifest accordingly.
+
+### Community edition
+
+```
+~/odoo-sandboxes/
+└── community/
+    └── 18.0/
+        ├── odoo/            # core source tree
+        ├── addons/          # community addons (manifest expects this path)
+        └── ...               # rest of the upstream repo
+```
+
+Clone the official community repo (or copy a tarball) into `~/odoo-sandboxes/community/18.0`.
+
+### Enterprise edition
+
+```
+~/odoo-sandboxes/
+├── community/
+│   └── 18.0/                # reused for base addons
+└── enterprise/
+    └── 18.0/
+        ├── odoo/            # enterprise bundle (contains enterprise addons)
+        ├── enterprise/      # optional extra packaging from installer
+        └── addons/          # optional; not required by manifest
+```
+
+Place the licensed enterprise bundle under `~/odoo-sandboxes/enterprise/18.0` and ensure the `odoo/addons` directory (from the tarball/installer) is present. The manifest mounts community addons plus `enterprise/18.0/odoo/addons` so standard enterprise modules resolve correctly.
+
+If you want to store sources elsewhere, edit `config/default_manifest.yml` (or your user manifest) to point `repo_path`, `addons`, and `extra_addons` to the actual locations.
